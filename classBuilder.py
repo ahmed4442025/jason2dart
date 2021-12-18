@@ -53,8 +53,8 @@ class classBuilder:
         # if arr return => List<classNameC> className = [];
         if self.arrTempFlag in var:
             var = var.split(':')[1]
-            return '  List<' + var + '> ' + name + ';' + self.newLine
-        return '  ' + var + ' ' + name + ';' + self.newLine
+            return '  List<' + var + '>? ' + name + ';' + self.newLine
+        return '  ' + var + '? ' + name + ';' + self.newLine
 
     # return all vars in class
     def buildVars(self, vars, names):
@@ -98,9 +98,9 @@ class classBuilder:
             # loop
             m += '      {0}.{1} = [];'.format(newClassName, name) + self.newLine
             m += '''    for (var item in json['{0}'])'''.format(namej) + '{' + self.newLine
-            m += "      if (item == null) continue;"
+            m += "      if (item == null) continue;" + self.newLine
             m += '''      {0} temp = {0}.fromJson(item);'''.format(var) + self.newLine
-            m += '      {0}.{1}.add(temp);'.format(newClassName, name) + self.newLine
+            m += '      {0}.{1}!.add(temp);'.format(newClassName, name) + self.newLine
             m += '}'
         else:
             # normal var (int, string, bool)
@@ -118,7 +118,7 @@ class classBuilder:
         m += className
         m += '.fromJson(Map<String, dynamic> json) {'
         m += self.newLine
-        m += '{0}{1} {2} = new {1}();'.format(spaces4, className, newClassName)
+        m += '{0}{1} {2} = {1}();'.format(spaces4, className, newClassName)
         m += self.newLine
 
         # set variable and get json data by key
@@ -135,14 +135,14 @@ class classBuilder:
         return m
 
     def buildOneFieldToJsonArr(self, jsonKey, varName):
-        m = "    if (this." + varName + " != null) {" + self.newLine
-        m += "      data['{0}'] = this.{1}.map((v) => v.toJson()).toList();".format(jsonKey, varName) + self.newLine
+        m = "    if (" + varName + " != null) {" + self.newLine
+        m += "      data['{0}'] = {1}!.map((v) => v.toJson()).toList();".format(jsonKey, varName) + self.newLine
         m += "    }" + self.newLine
         return m
 
     def buildOneFieldToJsonObj(self, jsonKey, varName):
-        m = "    if (this." + varName + " != null) {" + self.newLine
-        m += "      data['" + jsonKey + "'] = this." + varName + ".toJson();" + self.newLine
+        m = "    if (" + varName + " != null) {" + self.newLine
+        m += "      data['" + jsonKey + "'] = " + varName + "!.toJson();" + self.newLine
         m += "    }" + self.newLine
         return m
 
@@ -151,14 +151,14 @@ class classBuilder:
             return self.buildOneFieldToJsonArr(jsonKey, varName)
         if self.dictTempFlag in varType:
             return self.buildOneFieldToJsonObj(jsonKey, varName)
-        m = '    if (this.' + varName + ' != null)'
-        m += " data['" + jsonKey + "'] = this." + varName + ";" + self.newLine
+        m = '    if (' + varName + ' != null)'
+        m += " data['" + jsonKey + "'] = " + varName + ";" + self.newLine
         return m
 
     # .toJson()
     def buildToJson(self, jsonKeys, varNames, varTypes):
         m = '  Map<String, dynamic> toJson() {' + self.newLine
-        m += '     final Map<String, dynamic> data = new Map<String, dynamic>();' + self.newLine
+        m += '     final Map<String, dynamic> data = Map<String, dynamic>();' + self.newLine
         for i in range(len(jsonKeys)):
             m += self.buildOneFieldToJson(jsonKeys[i], varNames[i], varTypes[i])
         m += '    return data;' + self.newLine

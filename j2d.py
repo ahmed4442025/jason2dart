@@ -4,6 +4,7 @@ import classInfoC
 import classBuilder
 import interactive
 
+
 class json2dart:
 
     def __init__(self):
@@ -63,7 +64,6 @@ class json2dart:
         for i in self.classes:
             print(i)
 
-
     def saveAll(self, outputPath):
         m = ''
         for i in self.classes:
@@ -72,7 +72,6 @@ class json2dart:
         o.write(m)
         o.close()
         return len(self.classes)
-
 
 
 def main2():
@@ -95,3 +94,4 @@ def main2():
 
 
 main2()
+print('. .  .')
